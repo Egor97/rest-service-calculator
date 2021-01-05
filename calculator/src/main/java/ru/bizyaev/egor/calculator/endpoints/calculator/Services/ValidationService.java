@@ -9,12 +9,13 @@ import java.util.regex.Pattern;
 public class ValidationService {
 
     private boolean checkEmptyField(String expression) {
-        return !expression.trim().equals("");
+        Pattern pattern = Pattern.compile("(^[.]$)|(^[*/+-]$)|(^[\\d]*([*/+-])*$)|(^[*/+-]\\s*[\\d]*([*/+-])*$)");
+        Matcher matcher = pattern.matcher(expression.trim());
+        return !matcher.find();
     }
 
     private boolean isLegalSign(String expression) {
-        Pattern pattern;
-        pattern = Pattern.compile("[^.()\\s\\d*/+-]");
+        Pattern pattern = Pattern.compile("[^.()\\s\\d*/+-]");
         Matcher matcher = pattern.matcher(expression);
         return !matcher.find();
     }
@@ -45,7 +46,7 @@ public class ValidationService {
     }
 
     public boolean isValid(String expression) {
-        return checkEmptyField(expression) && isLegalSign(expression) && checkBrackets(expression) &&
-                checkingRepetitionSign(expression);
+        return checkEmptyField(expression) && isLegalSign(expression) &&
+                checkBrackets(expression) && checkingRepetitionSign(expression);
     }
 }

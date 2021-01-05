@@ -1,23 +1,20 @@
 package ru.bizyaev.egor.calculator.endpoints.calculator.Entities;
 
-import org.hibernate.annotations.CreationTimestamp;
-
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
-@Table(name = "Persons")
+@Table(name = "person")
 public class PersonEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "name")
+    @Column(unique = true)
     private String login;
 
-    @CreationTimestamp
-    private Date createAt;
+    @Column
+    private String password;
 
     public long getId() {
         return id;
@@ -31,7 +28,7 @@ public class PersonEntity {
         return login;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public String getPassword() {
+        return password;
     }
 }

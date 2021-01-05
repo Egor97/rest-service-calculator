@@ -17,4 +17,9 @@ public class ExpressionEntity {
     public int getPrecision() {
         return Integer.parseInt(precision);
     }
+
+    @Override
+    public String toString() {
+        return "expression= " + expression + " precision= " + precision + " ";
+    }
 }
