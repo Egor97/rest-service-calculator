@@ -1,25 +1,42 @@
 package ru.bizyaev.egor.calculator.Caches;
 
+import javafx.util.Pair;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.bizyaev.egor.calculator.Entities.ExpressionEntity;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.LinkedList;
 
 @Service
 public class Cache {
-    private final HashMap<String, BigDecimal> cache = new HashMap<>();
+    @Value("${cache.size}")
+    private int size;
+    private final LinkedList<Pair<String, BigDecimal>> list = new LinkedList<>();
+    Pair<String, BigDecimal> item;
 
-    public void saveItem(ExpressionEntity expression, BigDecimal value) {
-        cache.put(expression.toString(), value);
+    public void saveResult(String expression, BigDecimal value) {
+        item = new Pair<>(expression, value);
+        if (list.size() >= size) {
+            list.removeLast();
+        }
+        list.addFirst(item);
     }
 
-    public HashMap<String, BigDecimal> getCache() {
-        return cache;
+    private LinkedList<Pair<String, BigDecimal>> getCache() {
+        return list;
+    }
+
+    public boolean checkCache(String expression) {
+        return getCache().stream().anyMatch(x -> x.getKey().equals(expression));
+    }
+
+    public BigDecimal getSaveResult() {
+        int index = getCache().indexOf(item);
+        return getCache().get(index).getValue();
     }
 
     @Override
     public String toString() {
-        return "cache=" + cache;
+        return "cache=" + list;
     }
 }

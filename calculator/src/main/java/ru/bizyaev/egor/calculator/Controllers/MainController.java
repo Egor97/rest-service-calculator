@@ -77,19 +77,18 @@ public class MainController {
 
                 assert stack != null;
                 RequestDb request = new RequestDb();
-                BigDecimal result = mathService.getAnswer(stack, precision);
-                if (!cache.getCache().containsKey(expressionEntity.toString())) {
-                    cache.saveItem(expressionEntity, result);
+                if (!cache.checkCache(expressionEntity.toString())) {
+                    BigDecimal result = mathService.getAnswer(stack, precision);
+                    cache.saveResult(expressionEntity.toString(), result);
                     request.setPersonEntity(personService.getPerson(login));
                     request.setComputation(true);
                     request.setResult(result);
                 } else {
                     request.setPersonEntity(personService.getPerson(login));
                     request.setFromCache(true);
-                    request.setResult(cache.getCache().get(expressionEntity.toString()));
+                    request.setResult(cache.getSaveResult());
                 }
                 requestService.createRequest(request);
-
             } else {
                 throw new MethodArgumentNotValidException();
             }
