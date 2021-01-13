@@ -1,6 +1,7 @@
 package ru.bizyaev.egor.calculator.Services;
 
 import org.springframework.stereotype.Service;
+import ru.bizyaev.egor.calculator.Entities.ExpressionEntity;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -84,7 +85,8 @@ public class MathService {
         }
     }
 
-    public BigDecimal getAnswer(Stack<String> stack, int precision) {
+    public BigDecimal getAnswer(Stack<String> stack, ExpressionEntity expressionEntity) {
+        int precision = expressionEntity.getPrecision();
         while (!stack.empty()) {
             if (isOperator(stack.firstElement())) {
                 String operator = stack.firstElement();

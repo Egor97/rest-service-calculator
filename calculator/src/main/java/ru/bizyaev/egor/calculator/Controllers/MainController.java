@@ -54,14 +54,12 @@ public class MainController {
     @PostMapping("/")
     private BigDecimal getExpression(@RequestBody ExpressionEntity expressionEntity, Principal principal)
             throws MethodArgumentNotValidException {
-        String expression = expressionEntity.getExpression();
-        int precision = expressionEntity.getPrecision();
         String login = principal.getName();
         Stack<String> stack = null;
         BigDecimal result;
 
         if (personService.findByUsername(login)) {
-            if (validationService.isValid(expression)) {
+            if (validationService.isValid(expressionEntity)) {
 
                 try {
                     stack = parserService.parse(expressionEntity.getExpression());
@@ -72,7 +70,7 @@ public class MainController {
                 assert stack != null;
                 RequestDb request = new RequestDb();
                 if (!cache.checkCache(expressionEntity.toString())) {
-                    result = mathService.getAnswer(stack, precision);
+                    result = mathService.getAnswer(stack, expressionEntity);
                     cache.saveResult(expressionEntity.toString(), result);
                     request.setPersonEntity(personService.getPerson(login));
                     request.setComputation(true);

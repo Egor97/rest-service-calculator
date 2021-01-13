@@ -1,6 +1,7 @@
 package ru.bizyaev.egor.calculator.Services;
 
 import org.springframework.stereotype.Service;
+import ru.bizyaev.egor.calculator.Entities.ExpressionEntity;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,8 +46,18 @@ public class ValidationService {
         return !matcher.find();
     }
 
-    public boolean isValid(String expression) {
+    private boolean checkPrecision(String precision) {
+        Pattern pattern = Pattern.compile("^[\\d]+$");
+        Matcher matcher = pattern.matcher(precision);
+        return matcher.find();
+    }
+
+    public boolean isValid(ExpressionEntity expressionEntity) {
+        String expression = expressionEntity.getExpression();
+        String precision = String.valueOf(expressionEntity.getPrecision());
+
         return checkEmptyField(expression) && isLegalSign(expression) &&
-                checkBrackets(expression) && checkingRepetitionSign(expression);
+                checkBrackets(expression) && checkingRepetitionSign(expression) &&
+                checkPrecision(precision);
     }
 }

@@ -41,10 +41,6 @@ public class Cache {
         return getCache().get(index).getValue();
     }
 
-    public Pair<String, BigDecimal> getItem() {
-        return item;
-    }
-
     @Override
     public String toString() {
         return "cache=" + list;
