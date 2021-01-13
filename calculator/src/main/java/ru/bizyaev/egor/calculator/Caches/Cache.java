@@ -27,12 +27,22 @@ public class Cache {
     }
 
     public boolean checkCache(String expression) {
-        return getCache().stream().anyMatch(x -> x.getKey().equals(expression));
+        boolean check = getCache().stream().anyMatch(x -> x.getKey().equals(expression));
+        if (check) {
+            item = getCache().stream().filter(x -> x.getKey().equals(expression))
+                             .findFirst()
+                             .orElse(null);
+        }
+        return check;
     }
 
     public BigDecimal getSaveResult() {
         int index = getCache().indexOf(item);
         return getCache().get(index).getValue();
+    }
+
+    public Pair<String, BigDecimal> getItem() {
+        return item;
     }
 
     @Override
