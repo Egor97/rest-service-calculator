@@ -7,4 +7,5 @@ import java.util.List;
 public interface PersonService {
     List<PersonEntity> getAllPersons();
     PersonEntity getPerson(String login);
+    boolean findByUsername(String login);
 }

@@ -1,8 +1,6 @@
 package ru.bizyaev.egor.calculator.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import ru.bizyaev.egor.calculator.Entities.ExpressionEntity;
 import ru.bizyaev.egor.calculator.Exceptions.PersonNotFoundException;
@@ -12,12 +10,12 @@ import ru.bizyaev.egor.calculator.Entities.RequestDb;
 import ru.bizyaev.egor.calculator.Exceptions.MethodArgumentNotValidException;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Stack;
 
 @RestController
-@RequestMapping("/")
 public class MainController {
 
     private final ParserService parserService;
@@ -40,16 +38,11 @@ public class MainController {
         this.cache = cache;
     }
 
-    private boolean checkAccessLogin(String login) {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ((User) principal).getUsername().equals(login);
-    }
-
     @GetMapping("/{login}")
-    public List<RequestDb> getDataPersonByLogin(@PathVariable String login) throws PersonNotFoundException {
+    public List<RequestDb> getDataPersonByLogin(@PathVariable String login, Principal principal) throws PersonNotFoundException {
         List<RequestDb> requests;
 
-        if (checkAccessLogin(login)) {
+        if (personService.getPerson(login).getLogin().equals(principal.getName())) {
             requests = requestService.getAllRequestsByLogin(personService.getPerson(login).getLogin());
         } else {
             throw new PersonNotFoundException("Access is denied");
@@ -58,15 +51,16 @@ public class MainController {
         return requests;
     }
 
-    @PostMapping("/{login}")
-    private void getExpression(@PathVariable String login, @RequestBody ExpressionEntity expressionEntity)
+    @PostMapping("/")
+    private BigDecimal getExpression(@RequestBody ExpressionEntity expressionEntity, Principal principal)
             throws MethodArgumentNotValidException {
         String expression = expressionEntity.getExpression();
-        Stack<String> stack = null;
         int precision = expressionEntity.getPrecision();
+        String login = principal.getName();
+        Stack<String> stack = null;
+        BigDecimal result;
 
-        if (checkAccessLogin(login)) {
-
+        if (personService.findByUsername(login)) {
             if (validationService.isValid(expression)) {
 
                 try {
@@ -78,16 +72,16 @@ public class MainController {
                 assert stack != null;
                 RequestDb request = new RequestDb();
                 if (!cache.checkCache(expressionEntity.toString())) {
-                    BigDecimal result = mathService.getAnswer(stack, precision);
+                    result = mathService.getAnswer(stack, precision);
                     cache.saveResult(expressionEntity.toString(), result);
                     request.setPersonEntity(personService.getPerson(login));
                     request.setComputation(true);
-                    request.setResult(result);
                 } else {
+                    result = cache.getSaveResult();
                     request.setPersonEntity(personService.getPerson(login));
                     request.setFromCache(true);
-                    request.setResult(cache.getSaveResult());
                 }
+                request.setResult(String.valueOf(result));
                 requestService.createRequest(request);
             } else {
                 throw new MethodArgumentNotValidException();
@@ -96,5 +90,6 @@ public class MainController {
         } else {
             throw new PersonNotFoundException("Access is denied");
         }
+        return result;
     }
 }
