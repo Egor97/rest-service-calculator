@@ -28,14 +28,20 @@ public class PersonServiceImp implements PersonService {
     @Override
     public PersonEntity getPerson(String login) throws PersonNotFoundException {
         PersonEntity personDb = getAllPersons().stream()
-                    .filter(p -> p.getLogin().equals(login))
-                    .findFirst()
-                    .orElse(null);
+                     .filter(p -> p.getLogin().equals(login))
+                     .findFirst()
+                     .orElse(null);
 
         if (personDb != null) {
             return personDb;
         } else {
             throw new PersonNotFoundException("Not found User with login '" + login + "'");
         }
+    }
+
+    @Override
+    public boolean findByUsername(String login) {
+        return getAllPersons().stream()
+               .anyMatch(x -> x.getLogin().equals(login));
     }
 }

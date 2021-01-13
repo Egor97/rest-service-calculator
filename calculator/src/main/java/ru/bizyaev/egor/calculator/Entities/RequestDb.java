@@ -32,10 +32,14 @@ public class RequestDb {
     @Column
     private boolean computation;
 
-    @Column
-    private BigDecimal result;
+    @Column()
+    private String result;
 
     public String getLogin() {
         return personEntity.getLogin();
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }
